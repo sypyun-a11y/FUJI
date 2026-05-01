@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <clipPath id="circle-clip">
+      <circle cx="256" cy="256" r="230"/>
+    </clipPath>
+    <radialGradient id="sky-grad" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#ffe4c8"/>
+      <stop offset="40%" stop-color="#ffd4a0"/>
+      <stop offset="100%" stop-color="#c8dff8"/>
+    </radialGradient>
+    <radialGradient id="sun-grad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffdd55"/>
+      <stop offset="100%" stop-color="#ff9a20"/>
+    </radialGradient>
+    <linearGradient id="mountain-grad" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0%" stop-color="#6b7fd4"/>
+      <stop offset="100%" stop-color="#3a4db5"/>
+    </linearGradient>
+    <linearGradient id="water-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4ecdc4"/>
+      <stop offset="100%" stop-color="#2ba89e"/>
+    </linearGradient>
+    <radialGradient id="circle-border" cx="50%" cy="50%" r="50%">
+      <stop offset="85%" stop-color="transparent"/>
+      <stop offset="90%" stop-color="#4a8ed4"/>
+      <stop offset="100%" stop-color="#2d6bb5"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Sky background -->
+  <circle cx="256" cy="256" r="230" fill="url(#sky-grad)" clip-path="url(#circle-clip)"/>
+
+  <!-- Sun -->
+  <circle cx="310" cy="178" r="62" fill="url(#sun-grad)" clip-path="url(#circle-clip)" opacity="0.95"/>
+
+  <!-- Water / base layer -->
+  <ellipse cx="256" cy="400" rx="240" ry="60" fill="url(#water-grad)" clip-path="url(#circle-clip)"/>
+  <ellipse cx="256" cy="380" rx="230" ry="40" fill="#5dd8ce" clip-path="url(#circle-clip)" opacity="0.7"/>
+
+  <!-- Mountain body -->
+  <polygon points="256,88 92,360 420,360" fill="url(#mountain-grad)" clip-path="url(#circle-clip)"/>
+
+  <!-- Mountain shadow side -->
+  <polygon points="256,88 172,280 256,260" fill="#3040a8" clip-path="url(#circle-clip)" opacity="0.4"/>
+
+  <!-- Snow cap -->
+  <polygon points="256,88 208,190 256,178 304,190" fill="#fff" clip-path="url(#circle-clip)"/>
+  <ellipse cx="256" cy="190" rx="48" ry="14" fill="#f0f4ff" clip-path="url(#circle-clip)"/>
+  <!-- Snow top rounded -->
+  <ellipse cx="256" cy="128" rx="26" ry="30" fill="#ffffff" clip-path="url(#circle-clip)"/>
+
+  <!-- Cloud left -->
+  <ellipse cx="128" cy="346" rx="68" ry="32" fill="#fff" clip-path="url(#circle-clip)" opacity="0.95"/>
+  <ellipse cx="100" cy="338" rx="44" ry="28" fill="#fff" clip-path="url(#circle-clip)"/>
+  <ellipse cx="158" cy="342" rx="38" ry="24" fill="#fff" clip-path="url(#circle-clip)"/>
+
+  <!-- Cloud right -->
+  <ellipse cx="384" cy="346" rx="68" ry="32" fill="#fff" clip-path="url(#circle-clip)" opacity="0.95"/>
+  <ellipse cx="412" cy="338" rx="44" ry="28" fill="#fff" clip-path="url(#circle-clip)"/>
+  <ellipse cx="354" cy="342" rx="38" ry="24" fill="#fff" clip-path="url(#circle-clip)"/>
+
+  <!-- Cloud center small -->
+  <ellipse cx="256" cy="362" rx="52" ry="20" fill="#fff" clip-path="url(#circle-clip)" opacity="0.8"/>
+
+  <!-- Circle border -->
+  <circle cx="256" cy="256" r="230" fill="none" stroke="#3a7fd4" stroke-width="14"/>
+  <circle cx="256" cy="256" r="222" fill="none" stroke="#6aaee8" stroke-width="3" opacity="0.5"/>
+
+  <!-- Subtle glass highlight -->
+  <ellipse cx="200" cy="130" rx="80" ry="40" fill="#fff" opacity="0.08"/>
+</svg>
