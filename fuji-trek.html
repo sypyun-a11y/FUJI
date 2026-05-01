@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>후지산 원정대 🗻</title>
+<meta property="og:title" content="후지산 원정대 🗻">
+<meta property="og:description" content="2026.7.11 선령🐰 지예🐥 윤미🐯의 후지산 요시다 루트 원정 트레킹 앱">
+<meta property="og:image" content="og-image.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="후지산 원정대 🗻">
+<meta name="twitter:description" content="2026.7.11 선령🐰 지예🐥 윤미🐯의 후지산 요시다 루트 원정 트레킹 앱">
+<meta name="twitter:image" content="og-image.png">
+<link rel="apple-touch-icon" href="og-image.png">
+<meta name="theme-color" content="#1a2f4e">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --orange:#ff6b35;--orange2:#fff3ee;
+  --green:#00c27a;--green2:#dcfff1;
+  --yellow:#ffd93d;--red:#ff3b5c;--red2:#fff0f3;
+  --blue:#2d8ef5;--blue2:#e6f2ff;
+  --ink:#1a2f4e;--muted:rgba(26,47,78,.45);--border:rgba(26,47,78,.1);
+  --card:#fff;--bg:#f0f4f8;
+  --hdr:50px;--nav:58px;--stats:68px;--hstrip:64px;--crow:78px;
+}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#1a2f4e;color:var(--ink);-webkit-font-smoothing:antialiased;}
+
+/* HEADER */
+.app-header{position:fixed;top:0;left:0;right:0;height:var(--hdr);background:linear-gradient(135deg,#1a2f4e,#2d5a8e);padding:0 14px;display:flex;align-items:center;justify-content:space-between;z-index:600;}
+.app-title{font-size:15px;font-weight:900;color:#fff;}
+.app-date{font-size:9px;color:rgba(255,255,255,.6);font-weight:600;margin-top:1px;}
+.hdr-right{display:flex;align-items:center;gap:6px;}
+.hdr-badge{background:rgba(255,255,255,.18);padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700;color:#fff;}
+.offline-badge{background:rgba(255,59,92,.6);padding:4px 8px;border-radius:100px;font-size:10px;font-weight:800;color:#fff;display:none;}
+.offline-badge.show{display:inline-block;}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav);background:#fff;border-top:1px solid var(--border);display:flex;z-index:600;}
+.bn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;border:none;background:none;font-family:inherit;padding:6px 4px 8px;}
+.bn-ic{font-size:20px;line-height:1;}
+.bn-lbl{font-size:9px;font-weight:700;color:var(--muted);}
+.bn.on .bn-lbl{color:var(--orange);}
+.bn.sos.on .bn-lbl{color:var(--red);}
+
+/* TAB SYSTEM */
+.tab-panel{display:none;position:fixed;top:var(--hdr);left:0;right:0;bottom:var(--nav);overflow-y:auto;background:var(--bg);}
+.tab-panel.on{display:block;}
+
+/* ═══════════ CLIMB TAB ═══════════ */
+#climbTab{
+  display:flex;flex-direction:column;overflow:hidden;background:#1a2f4e;
+  position:fixed;top:var(--hdr);left:0;right:0;bottom:var(--nav);
+}
+
+/* TRAIL SVG — fills remaining space */
+.map-wrap{
+  flex:1;min-height:0;position:relative;background:#0f1e35;overflow:hidden;
+}
+#trailSvg{width:100%;height:100%;display:block;}
+
+/* Map overlays */
+.map-station-ov{position:absolute;top:10px;right:10px;z-index:90;background:rgba(15,30,53,.88);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:12px;padding:7px 11px;text-align:right;border:1px solid rgba(255,255,255,.1);}
+.mso-name{font-size:12px;font-weight:900;color:#fff;}
+.mso-alt{font-size:10px;color:rgba(255,255,255,.55);font-weight:700;margin-top:1px;}
+.map-prog-strip{position:absolute;bottom:0;left:0;right:0;height:3px;z-index:91;background:rgba(255,255,255,.08);}
+.map-prog-fill{height:100%;background:linear-gradient(90deg,var(--yellow),var(--orange));transition:width .8s ease;}
+.map-gps-dot{position:absolute;top:12px;left:12px;z-index:90;width:9px;height:9px;border-radius:50%;background:#444;}
+.map-gps-dot.on{background:var(--green);animation:gpsPulse 2s infinite;}
+@keyframes gpsPulse{0%,100%{box-shadow:0 0 0 3px rgba(0,194,122,.3);}50%{box-shadow:0 0 0 7px rgba(0,194,122,.1);}}
+.wakelock-banner{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:91;background:rgba(0,194,122,.88);border-radius:100px;padding:4px 13px;font-size:10px;font-weight:800;color:#fff;display:none;white-space:nowrap;}
+.wakelock-banner.show{display:block;}
+
+/* HORIZONTAL STATION STRIP */
+.h-strip{
+  flex-shrink:0;height:var(--hstrip);background:rgba(255,255,255,.05);
+  border-top:1px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;overflow-x:auto;padding:0 14px;
+  scrollbar-width:none;gap:0;justify-content:center;
+}
+.h-strip::-webkit-scrollbar{display:none;}
+.h-st{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:40px;}
+/* 미방문: 중간 크기 점 */
+.h-st-dot{
+  width:16px;height:16px;border-radius:50%;
+  background:rgba(255,255,255,.18);
+  border:1.5px solid rgba(255,255,255,.28);
+  transition:all .3s;margin-bottom:5px;flex-shrink:0;
+}
+/* 도착: 이모지 보이는 동그라미 */
+.h-st-dot.reached{
+  width:26px;height:26px;
+  background:var(--green);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;margin-bottom:3px;
+}
+.h-st-dot.current{
+  width:28px;height:28px;
+  background:linear-gradient(135deg,var(--orange),#ffb830);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;margin-bottom:3px;
+  box-shadow:0 0 10px rgba(255,107,53,.6);
+}
+.h-st-dot.summit{
+  width:28px;height:28px;
+  background:linear-gradient(135deg,#ffd93d,#ff8c42);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;margin-bottom:3px;
+  box-shadow:0 0 10px rgba(255,217,61,.6);
+}
+.h-st-name{font-size:10px;font-weight:700;color:rgba(255,255,255,.5);text-align:center;white-space:nowrap;}
+.h-st-name.active{color:#fff;}
+.h-connector{width:14px;height:1.5px;background:rgba(255,255,255,.1);flex-shrink:0;margin-bottom:12px;}
+.h-connector.done{background:var(--green);}
+
+/* CHARACTER CHECK-IN ROW */
+.char-row{
+  flex-shrink:0;height:var(--crow);background:rgba(26,47,78,.97);
+  border-top:1px solid rgba(255,255,255,.08);
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;
+}
+.ci-card{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  cursor:pointer;padding:8px 4px;border:none;background:none;font-family:inherit;
+  border-right:1px solid rgba(255,255,255,.08);transition:background .15s;
+  position:relative;-webkit-tap-highlight-color:transparent;
+}
+.ci-card:last-child{border-right:none;}
+.ci-card:active{background:rgba(255,255,255,.08);}
+.ci-card.checked{background:rgba(0,194,122,.12);}
+.ci-em{font-size:22px;line-height:1;}
+.ci-name{font-size:11px;font-weight:900;color:#fff;}
+.ci-status{font-size:9px;font-weight:700;color:rgba(255,255,255,.45);margin-top:1px;}
+.ci-card.checked .ci-status{color:var(--green);}
+.ci-check-badge{position:absolute;top:6px;right:8px;font-size:10px;opacity:0;}
+.ci-card.checked .ci-check-badge{opacity:1;}
+
+/* STATS BAR */
+.stats-bar{
+  flex-shrink:0;height:var(--stats);background:#1a2f4e;
+  border-top:1px solid rgba(255,255,255,.1);
+  display:flex;align-items:center;padding:0 8px;
+}
+.s-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;}
+.s-val{font-size:22px;font-weight:900;color:#fff;letter-spacing:-.5px;line-height:1;}
+.s-lbl{font-size:9px;font-weight:700;color:rgba(255,255,255,.4);}
+.s-div{width:1px;height:32px;background:rgba(255,255,255,.1);flex-shrink:0;margin:0 4px;}
+.gps-fab{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--orange),#ffb830);border:none;color:#fff;font-size:20px;cursor:pointer;box-shadow:0 4px 18px rgba(255,107,53,.5);flex-shrink:0;margin:0 8px;transition:all .2s;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;}
+.gps-fab.on{background:linear-gradient(135deg,var(--green),#00e5a0);box-shadow:0 4px 18px rgba(0,194,122,.5);}
+.gps-fab:active{transform:scale(.9);}
+.gps-fab.waiting{background:linear-gradient(135deg,#6c8ebf,#8fb4e8);box-shadow:0 4px 18px rgba(108,142,191,.4);}
+
+/* Manual input modal */
+.manual-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:800;display:none;align-items:flex-end;}
+.manual-modal.show{display:flex;}
+.manual-sheet{background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;}
+.manual-title{font-size:14px;font-weight:800;margin-bottom:12px;}
+.manual-row{display:flex;gap:8px;}
+.manual-row input{flex:1;padding:10px 13px;border:1.5px solid var(--border);border-radius:11px;font-size:14px;font-family:inherit;outline:none;}
+.manual-row input:focus{border-color:var(--orange);}
+.manual-row button{padding:10px 16px;background:var(--ink);color:#fff;border:none;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+.manual-close{width:100%;padding:11px;background:var(--bg);border:none;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:8px;color:var(--muted);}
+
+/* ═══════════ WEATHER TAB ═══════════ */
+.tab-inner{padding:14px;}
+.sec-title{font-size:15px;font-weight:900;color:var(--ink);margin-bottom:12px;}
+.weather-hero{background:linear-gradient(135deg,#1a2f4e,#2d5a8e);border-radius:18px;padding:18px;color:#fff;margin-bottom:12px;text-align:center;}
+.weather-em{font-size:52px;margin-bottom:8px;}
+.weather-temp{font-size:30px;font-weight:900;margin-bottom:4px;}
+.weather-desc{font-size:13px;opacity:.8;font-weight:600;margin-bottom:14px;}
+.w-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.w-stat{background:rgba(255,255,255,.12);border-radius:12px;padding:10px;text-align:center;}
+.w-stat-val{font-size:15px;font-weight:900;margin-bottom:2px;}
+.w-stat-lbl{font-size:10px;opacity:.7;font-weight:700;}
+.entrance-card{background:var(--green2);border:2px solid var(--green);border-radius:14px;padding:12px 15px;margin-bottom:12px;display:flex;align-items:center;gap:12px;}
+.entrance-em{font-size:22px;}
+.entrance-title{font-size:13px;font-weight:900;color:var(--green);}
+.entrance-sub{font-size:10px;font-weight:600;color:rgba(0,194,122,.7);margin-top:1px;}
+.w-tips{background:var(--card);border-radius:16px;padding:14px;margin-bottom:12px;}
+.tip-title{font-size:13px;font-weight:800;margin-bottom:10px;}
+.tip-item{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;line-height:1.5;}
+.tip-item:last-child{border:none;}
+.tip-ic{font-size:17px;flex-shrink:0;}
+.hourly-sec{background:var(--card);border-radius:16px;padding:14px;margin-bottom:12px;}
+.hourly-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
+.hourly-scroll::-webkit-scrollbar{display:none;}
+.h-item{flex-shrink:0;text-align:center;background:var(--bg);border-radius:11px;padding:8px 10px;min-width:54px;}
+.h-time{font-size:10px;font-weight:700;color:var(--muted);margin-bottom:2px;}
+.h-em{font-size:18px;margin-bottom:2px;}
+.h-temp{font-size:12px;font-weight:800;}
+.h-rain{font-size:10px;color:var(--blue);font-weight:700;}
+.offline-note{background:#fffbe6;border:1.5px solid var(--yellow);border-radius:12px;padding:9px 13px;font-size:11px;font-weight:700;color:#7a6800;margin-bottom:10px;display:none;}
+.offline-note.show{display:block;}
+
+/* ═══════════ FOOD TAB ═══════════ */
+.food-cat-hd{display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:13px;margin-bottom:8px;}
+.food-cat-ic{width:33px;height:33px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.ftitle{font-size:13px;font-weight:900;}
+.fsub{font-size:10px;color:var(--muted);margin-top:1px;}
+.food-card{background:var(--card);border:1.5px solid var(--border);border-radius:13px;padding:12px;margin-bottom:8px;}
+.food-top{display:flex;align-items:flex-start;gap:9px;margin-bottom:5px;}
+.food-em{font-size:24px;flex-shrink:0;}
+.food-name{font-size:13px;font-weight:800;}
+.food-jp{font-size:10px;color:var(--muted);margin-top:1px;}
+.food-desc{font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:8px;}
+.food-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.food-tags{display:flex;gap:5px;flex-wrap:wrap;}
+.food-tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;}
+.map-link{display:inline-flex;align-items:center;gap:4px;padding:6px 11px;background:var(--blue);color:#fff;border-radius:100px;font-size:11px;font-weight:800;text-decoration:none;white-space:nowrap;flex-shrink:0;}
+.food-sec{margin-bottom:16px;}
+
+/* ═══════════ SOS TAB ═══════════ */
+.sos-loc{background:linear-gradient(135deg,#1a2f4e,#2d5a8e);border-radius:18px;padding:16px;color:#fff;margin-bottom:12px;}
+.sos-loc-title{font-size:10px;font-weight:700;opacity:.6;letter-spacing:.4px;text-transform:uppercase;margin-bottom:10px;}
+.sos-coord-box{background:rgba(255,255,255,.12);border-radius:11px;padding:11px 13px;margin-bottom:10px;}
+.sos-coord-label{font-size:10px;opacity:.65;font-weight:700;margin-bottom:4px;}
+.sos-coord-val{font-size:14px;font-weight:900;color:var(--yellow);font-family:monospace;letter-spacing:.3px;}
+.sos-loc-meta{display:flex;justify-content:space-between;font-size:11px;opacity:.7;margin-bottom:12px;}
+.sos-copy{width:100%;padding:11px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.28);border-radius:11px;color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;}
+.sos-call-sec{background:var(--card);border-radius:18px;padding:14px;margin-bottom:12px;}
+.sos-sec-title{font-size:12px;font-weight:800;color:var(--ink);margin-bottom:12px;}
+.sos-call-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.sos-call-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:16px 8px;border-radius:16px;border:none;cursor:pointer;font-family:inherit;text-decoration:none;}
+.sos-call-btn.amb{background:linear-gradient(135deg,#ff3b5c,#ff6b8a);color:#fff;}
+.sos-call-btn.pol{background:linear-gradient(135deg,#2d8ef5,#5baeff);color:#fff;}
+.sos-call-em{font-size:28px;}
+.sos-call-num{font-size:22px;font-weight:900;}
+.sos-call-lbl{font-size:10px;font-weight:700;opacity:.85;}
+.sos-sms-sec{background:var(--card);border-radius:18px;padding:14px;margin-bottom:12px;}
+.sos-contact{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:11px;font-size:13px;font-family:inherit;color:var(--ink);outline:none;margin-bottom:10px;}
+.sos-contact:focus{border-color:var(--red);}
+.sos-sms-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--red),#ff6b8a);color:#fff;border:none;border-radius:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;margin-bottom:8px;}
+.sos-hint{font-size:10px;color:var(--muted);font-weight:700;text-align:center;line-height:1.5;}
+.sos-rescue-sec{background:var(--card);border-radius:18px;padding:14px;margin-bottom:12px;}
+.sos-rescue-item{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);}
+.sos-rescue-item:last-child{border:none;}
+.sos-rescue-name{font-size:12px;font-weight:800;}
+.sos-rescue-sub{font-size:10px;color:var(--muted);margin-top:1px;}
+.sos-rescue-call{display:inline-flex;align-items:center;gap:4px;padding:6px 11px;background:var(--red2);color:var(--red);border-radius:100px;font-size:11px;font-weight:800;text-decoration:none;}
+.sos-phrase-sec{background:var(--card);border-radius:18px;padding:14px;margin-bottom:12px;}
+.phrase-item{padding:9px 0;border-bottom:1px solid var(--border);}
+.phrase-item:last-child{border:none;}
+.phrase-kr{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:3px;}
+.phrase-jp{font-size:14px;font-weight:800;line-height:1.4;}
+.phrase-read{font-size:11px;color:var(--orange);font-weight:700;margin-top:2px;}
+
+/* ACHIEVEMENT POPUP */
+.achieve-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:2000;display:none;align-items:center;justify-content:center;padding:22px;}
+.achieve-overlay.show{display:flex;}
+.achieve-card{background:#fff;border-radius:26px;padding:26px 22px;text-align:center;width:100%;max-width:300px;animation:popIn .35s cubic-bezier(.34,1.56,.64,1);}
+@keyframes popIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.ach-em{font-size:60px;line-height:1;margin-bottom:10px;}
+.ach-badge{font-size:12px;font-weight:800;color:var(--orange);background:var(--orange2);padding:4px 12px;border-radius:100px;display:inline-block;margin-bottom:8px;}
+.ach-title{font-size:19px;font-weight:900;margin-bottom:5px;}
+.ach-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:12px;}
+.ach-chars{font-size:24px;margin-bottom:14px;letter-spacing:4px;}
+.ach-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--orange),#ffb830);color:#fff;border:none;border-radius:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(var(--nav) + 14px);left:50%;transform:translateX(-50%) translateY(14px);background:#1a2f4e;color:#fff;padding:9px 20px;border-radius:100px;font-size:12px;font-weight:700;z-index:3000;opacity:0;transition:all .28s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* CERTIFICATE */
+.cert-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:2500;display:none;align-items:center;justify-content:center;padding:14px;}
+.cert-overlay.show{display:flex;}
+.cert-wrap{background:#fff;border-radius:18px;width:100%;max-width:360px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.5);}
+#certCanvas{width:100%;display:block;}
+.cert-actions{padding:12px 14px;display:flex;gap:8px;background:#f8f8f8;border-top:1px solid #eee;}
+.cert-dl{flex:1;padding:12px;background:linear-gradient(135deg,#c9a227,#f0c040);color:#fff;border:none;border-radius:11px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;}
+.cert-close{padding:12px 16px;background:#fff;border:1.5px solid var(--border);border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--muted);}
+.cert-hint{font-size:10px;color:var(--muted);text-align:center;padding:4px 14px 10px;background:#f8f8f8;}
+</style>
+</head>
+<body>
+
+<!-- Achievement popup -->
+<div class="achieve-overlay" id="achieveOverlay">
+  <div class="achieve-card">
+    <div class="ach-em" id="achEm">🎉</div>
+    <div class="ach-badge" id="achBadge"></div>
+    <div class="ach-title" id="achTitle"></div>
+    <div class="ach-desc" id="achDesc"></div>
+    <div class="ach-chars">🐰🐥🐯</div>
+    <button class="ach-btn" onclick="closeAchieve()">계속 등반! 💪</button>
+  </div>
+</div>
+
+<!-- Manual altitude modal -->
+<div class="manual-modal" id="manualModal" onclick="if(event.target===this)closeManual()">
+  <div class="manual-sheet">
+    <div class="manual-title">🔧 수동 고도 입력 (테스트용)</div>
+    <div class="manual-row">
+      <input type="number" id="manualAlt" placeholder="고도 입력 (예: 2700)" min="2305" max="3776">
+      <button onclick="applyManual()">이동</button>
+    </div>
+    <button class="manual-close" onclick="closeManual()">닫기</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Header -->
+<header class="app-header">
+  <div>
+    <div class="app-title">🗻 후지산 원정대</div>
+    <div class="app-date">2026.7.11 · 요시다 루트</div>
+  </div>
+  <div class="hdr-right">
+    <span class="offline-badge" id="offlineBadge">📵 오프라인</span>
+    <div class="hdr-badge" id="hdrWeather">날씨 확인중</div>
+  </div>
+</header>
+
+<!-- ═══ CLIMB TAB ═══ -->
+<div class="tab-panel on" id="climbTab">
+
+  <!-- Trail SVG visualization -->
+  <div class="map-wrap" id="mapWrap">
+    <svg id="trailSvg" width="100%" height="100%"></svg>
+    <!-- Station overlay -->
+    <div class="map-station-ov">
+      <div class="mso-name" id="msoName">5합목 · 출발 대기</div>
+      <div class="mso-alt" id="msoAlt">2,305m · 0%</div>
+    </div>
+    <!-- GPS dot -->
+    <div class="map-gps-dot" id="mapGpsDot"></div>
+    <!-- Wake lock banner -->
+    <div class="wakelock-banner" id="wakelockBanner">🔆 화면 켜짐 유지 중</div>
+    <!-- Progress strip -->
+    <div class="map-prog-strip"><div class="map-prog-fill" id="mapProgFill" style="width:0%"></div></div>
+    <!-- Manual input shortcut -->
+    <div id="manualHint" style="position:absolute;bottom:8px;right:10px;z-index:92;font-size:9px;color:rgba(255,255,255,.3);font-weight:700;cursor:pointer;" onclick="openManual()">🔧 수동입력</div>
+  </div>
+
+  <!-- Horizontal station strip (5합목 left → 정상 right) -->
+  <div class="h-strip" id="hStrip"></div>
+
+  <!-- Character check-in row -->
+  <div class="char-row">
+    <button class="ci-card" id="ciCard0" onclick="toggleCheckin(0)">
+      <span class="ci-check-badge">✅</span>
+      <div class="ci-em">🐰</div>
+      <div class="ci-name">선령</div>
+      <div class="ci-status" id="ciSt0">탭해서 체크인</div>
+    </button>
+    <button class="ci-card" id="ciCard1" onclick="toggleCheckin(1)">
+      <span class="ci-check-badge">✅</span>
+      <div class="ci-em">🐥</div>
+      <div class="ci-name">지예</div>
+      <div class="ci-status" id="ciSt1">탭해서 체크인</div>
+    </button>
+    <button class="ci-card" id="ciCard2" onclick="toggleCheckin(2)">
+      <span class="ci-check-badge">✅</span>
+      <div class="ci-em">🐯</div>
+      <div class="ci-name">윤미</div>
+      <div class="ci-status" id="ciSt2">탭해서 체크인</div>
+    </button>
+  </div>
+
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="s-col">
+      <div class="s-val" id="sAlt">2,305</div>
+      <div class="s-lbl">고도 (m)</div>
+    </div>
+    <div class="s-div"></div>
+    <button class="gps-fab" id="gpsFab" onclick="toggleGPS()">📍</button>
+    <div class="s-div"></div>
+    <div class="s-col">
+      <div class="s-val" id="sTime">00:00</div>
+      <div class="s-lbl" id="sTimeLbl">등반 시간</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ WEATHER TAB ═══ -->
+<div class="tab-panel" id="weatherTab">
+  <div class="tab-inner">
+    <div class="sec-title">☀️ 7월 11일 후지산 날씨</div>
+    <div class="offline-note" id="offlineNote">📵 오프라인 · 저장된 날씨 데이터를 보여줘요.</div>
+    <div class="entrance-card"><div class="entrance-em">✅</div><div><div class="entrance-title">입산 가능 · 요시다 루트 개방</div><div class="entrance-sub">공식 개방 기간 7월 1일 ~ 9월 10일</div></div></div>
+    <div class="weather-hero">
+      <div class="weather-em" id="wEm">⏳</div>
+      <div class="weather-temp" id="wTemp">--°C</div>
+      <div class="weather-desc" id="wDesc">불러오는 중...</div>
+      <div class="w-grid">
+        <div class="w-stat"><div class="w-stat-val" id="wWind">--</div><div class="w-stat-lbl">풍속 km/h</div></div>
+        <div class="w-stat"><div class="w-stat-val" id="wRain">--%</div><div class="w-stat-lbl">강수 확률</div></div>
+        <div class="w-stat"><div class="w-stat-val" id="wFeels">--°C</div><div class="w-stat-lbl">체감 온도</div></div>
+      </div>
+    </div>
+    <div class="hourly-sec">
+      <div class="tip-title">⏰ 시간별 예보 (정상 기준)</div>
+      <div class="hourly-scroll" id="hourlyScroll"><div style="color:var(--muted);font-size:12px;padding:8px;">불러오는 중...</div></div>
+    </div>
+    <div class="w-tips">
+      <div class="tip-title">🗻 후지산 등반 필수 팁</div>
+      <div class="tip-item"><div class="tip-ic">🌡️</div><div>정상은 5합목보다 <strong>약 15°C 낮아요</strong>. 패딩·윈드브레이커 필수!</div></div>
+      <div class="tip-item"><div class="tip-ic">💨</div><div>정상 근처 바람 매우 강함. 끈 달린 모자 + 우비 챙기기.</div></div>
+      <div class="tip-item"><div class="tip-ic">🌅</div><div>새벽 3~4시 출발이 정상에서 일출 보기 딱 좋아요.</div></div>
+      <div class="tip-item"><div class="tip-ic">🤢</div><div>3,000m 넘으면 천천히! 두통·메스꺼움 오면 즉시 하산.</div></div>
+      <div class="tip-item"><div class="tip-ic">💧</div><div>물 최소 2L. 산장 구매 가능하지만 500엔이라 미리 챙기기.</div></div>
+      <div class="tip-item"><div class="tip-ic">🔦</div><div>야간 등반이면 헤드램프 필수 (머리에 다는 것으로).</div></div>
+      <div class="tip-item"><div class="tip-ic">🕐</div><div>당일치기 총 <strong>9~10시간</strong> 예상 (등반 5~6h + 하산 3~4h).</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FOOD TAB ═══ -->
+<div class="tab-panel" id="foodTab">
+  <div class="tab-inner">
+    <div class="sec-title">🍜 시즈오카 & 후지산 맛집</div>
+
+    <!-- 후지노미야 야키소바 -->
+    <div class="food-sec">
+      <div class="food-cat-hd" style="background:linear-gradient(135deg,#fff3ee,#ffe0cc);">
+        <div class="food-cat-ic" style="background:var(--orange);color:#fff;">🍳</div>
+        <div><div class="ftitle">후지노미야 야키소바</div><div class="fsub">富士宮やきそば · 후지산 기슭 명물</div></div>
+      </div>
+      <div class="food-card">
+        <div class="food-top"><div class="food-em">🍳</div><div><div class="food-name">야키소바 혼케 야마나카</div><div class="food-jp">元祖 富士宮やきそば 山中</div></div></div>
+        <div class="food-desc">쫄깃한 증기 면에 라드 소스. 가다랑어포 듬뿍 올려주는 게 시그니처. 고형 라드로 볶는 게 일반 야키소바와 다른 점.</div>
+        <div class="food-bottom"><div class="food-tags"><span class="food-tag" style="background:var(--orange2);color:var(--orange);">등반 전날</span><span class="food-tag" style="background:var(--bg);color:var(--muted);">¥600~900</span></div><a class="map-link" href="https://www.google.com/maps/dir/?api=1&destination=元祖富士宮やきそば+山中&travelmode=driving" target="_blank">🗺️ 길찾기</a></div>
+      </div>
+      <div class="food-card">
+        <div class="food-top"><div class="food-em">🥢</div><div><div class="food-name">안카케 야키소바 미노야</div><div class="food-jp">あんかけやきそば みのや</div></div></div>
+        <div class="food-desc">시즈오카 독특한 스타일 — 바삭하게 구운 면 위에 걸쭉한 안카케 소스를 부어 먹는 야키소바. 탄수화물 충전에 최고.</div>
+        <div class="food-bottom"><div class="food-tags"><span class="food-tag" style="background:var(--green2);color:var(--green);">시즈오카만의 맛</span><span class="food-tag" style="background:var(--bg);color:var(--muted);">¥700~1000</span></div><a class="map-link" href="https://www.google.com/maps/dir/?api=1&destination=あんかけやきそば+静岡&travelmode=driving" target="_blank">🗺️ 길찾기</a></div>
+      </div>
+    </div>
+
+    <!-- 벚꽃새우 -->
+    <div class="food-sec">
+      <div class="food-cat-hd" style="background:linear-gradient(135deg,#fff0f3,#ffd6e0);">
+        <div class="food-cat-ic" style="background:#ff3b5c;color:#fff;">🦐</div>
+        <div><div class="ftitle">사쿠라에비 (벚꽃새우)</div><div class="fsub">桜えび · 시즈오카 해안 특산</div></div>
+      </div>
+      <div class="food-card">
+        <div class="food-top"><div class="food-em">🦐</div><div><div class="food-name">사쿠라에비 가이관 유이</div><div class="food-jp">桜えびかきあげ館 由比</div></div></div>
+        <div class="food-desc">시즈오카에서만 잡히는 생 벚꽃새우 전문점. 분홍빛 가키아게 덮밥 필수. 4~6월 / 10~12월이 제철이라 7월엔 냉동이지만 여전히 맛있어.</div>
+        <div class="food-bottom"><div class="food-tags"><span class="food-tag" style="background:var(--red2);color:var(--red);">시즈오카 필수</span><span class="food-tag" style="background:var(--bg);color:var(--muted);">¥1500~2000</span></div><a class="map-link" href="https://www.google.com/maps/dir/?api=1&destination=桜えびかきあげ館+由比&travelmode=driving" target="_blank">🗺️ 길찾기</a></div>
+      </div>
+    </div>
+
+    <!-- 시미즈 마구로동 -->
+    <div class="food-sec">
+      <div class="food-cat-hd" style="background:linear-gradient(135deg,#e6f2ff,#cce4ff);">
+        <div class="food-cat-ic" style="background:#2d8ef5;color:#fff;">🐟</div>
+        <div><div class="ftitle">시미즈 마구로동</div><div class="fsub">清水港 まぐろ丼 · 참치 덮밥</div></div>
+      </div>
+      <div class="food-card">
+        <div class="food-top"><div class="food-em">🍱</div><div><div class="food-name">카시노이치 (청수항 수산시장)</div><div class="food-jp">清水魚市場 河岸の市</div></div></div>
+        <div class="food-desc">시미즈항 바로 앞 수산시장 내 식당가. 갓 들어온 마구로(참치) 덮밥이 유명. 아침 일찍 가면 가장 신선한 걸 먹을 수 있어.</div>
+        <div class="food-bottom"><div class="food-tags"><span class="food-tag" style="background:var(--blue2);color:var(--blue);">등반 다음날 추천</span><span class="food-tag" style="background:var(--bg);color:var(--muted);">¥1200~2000</span></div><a class="map-link" href="https://www.google.com/maps/dir/?api=1&destination=清水魚市場+河岸の市+静岡&travelmode=driving" target="_blank">🗺️ 길찾기</a></div>
+      </div>
+    </div>
+
+    <!-- 하마마쓰 교자 -->
+    <div class="food-sec">
+      <div class="food-cat-hd" style="background:linear-gradient(135deg,#fff5e6,#ffe8cc);">
+        <div class="food-cat-ic" style="background:#ff9500;color:#fff;">🥟</div>
+        <div><div class="ftitle">하마마쓰 교자</div><div class="fsub">浜松餃子 · 마늘 없는 담백한 교자</div></div>
+      </div>
+      <div class="food-card">
+        <div class="food-top"><div class="food-em">🥟</div><div><div class="food-name">교자노 무사시야</div><div class="food-jp">餃子の武蔵屋 浜松</div></div></div>
+        <div class="food-desc">마늘을 넣지 않아 담백하고 숙주나물을 곁들여 먹는 게 특징. 원형으로 빙 둘러 쌓아 내오는 비주얼이 인스타에서 유명. 하마마쓰는 교자 소비량 일본 1위!</div>
+        <div class="food-bottom"><div class="food-tags"><span class="food-tag" style="background:var(--orange2);color:var(--orange);">하마마쓰 명물</span><span class="food-tag" style="background:var(--bg);color:var(--muted);">¥600~1000</span></div><a class="map-link" href="https://www.google.com/maps/dir/?api=1&destination=浜松餃子+武蔵屋&travelmode=driving" target="_blank">🗺️ 길찾기</a></div>
+      </div>
+    </div>
+
+    <!-- 5합목 간식 -->
+    <div class="food-sec">
+      <div class="food-cat-hd" style="background:linear-gradient(135deg,#f0fff4,#ccf5e0);">
+        <div class="food-cat-ic" style="background:var(--green);color:#fff;">🍦</div>
+        <div><div class="ftitle">후지산 5합목 간식</div><div class="fsub">登山グルメ · 등산 전 에너지 충전</div></div>
+      </div>
+      <div class="food-card">
+        <div class="food-top"><div class="food-em">🍦</div><div><div class="food-name">와사비 소프트 아이스크림</div><div class="food-jp">わさびソフトクリーム</div></div></div>
+        <div class="food-desc">5합목 기념품점에서 파는 연초록 와사비 소프트크림. 처음엔 코끝이 찡하지만 뒤에 달달한 맛이 남아. 후지산 왔으면 무조건 먹어봐야 하는 아이템.</div>
+        <div class="food-bottom"><div class="food-tags"><span class="food-tag" style="background:var(--green2);color:var(--green);">5합목 현장</span><span class="food-tag" style="background:var(--bg);color:var(--muted);">¥400~500</span></div><a class="map-link" href="https://www.google.com/maps/dir/?api=1&destination=富士山五合目+吉田ルート&travelmode=driving" target="_blank">🗺️ 길찾기</a></div>
+      </div>
+      <div class="food-card">
+        <div class="food-top"><div class="food-em">🍜</div><div><div class="food-name">5합목 후지산 소바</div><div class="food-jp">富士山五合目 山菜そば</div></div></div>
+        <div class="food-desc">해발 2,305m에서 먹는 소바. 등반 전 든든하게 먹고 가거나 하산 후 보상 식사로 딱. 산나물 소바가 인기 메뉴.</div>
+        <div class="food-bottom"><div class="food-tags"><span class="food-tag" style="background:var(--orange2);color:var(--orange);">등반 전 필수</span><span class="food-tag" style="background:var(--bg);color:var(--muted);">¥800~1200</span></div><a class="map-link" href="https://www.google.com/maps/dir/?api=1&destination=富士山五合目レストラン+吉田&travelmode=driving" target="_blank">🗺️ 길찾기</a></div>
+      </div>
+    </div>
+
+    <!-- 시즈오카 오뎅 -->
+    <div class="food-sec">
+      <div class="food-cat-hd" style="background:linear-gradient(135deg,#fff5e6,#ffe8cc);">
+        <div class="food-cat-ic" style="background:#ff9500;color:#fff;">🍢</div>
+        <div><div class="ftitle">시즈오카 오뎅</div><div class="fsub">静岡おでん · 검은 국물 오뎅</div></div>
+      </div>
+      <div class="food-card">
+        <div class="food-top"><div class="food-em">🍢</div><div><div class="food-name">아오바 요코초 오뎅 골목</div><div class="food-jp">青葉横丁 おでん街</div></div></div>
+        <div class="food-desc">시즈오카역 근처 오뎅 골목. 된장 소스에 찍어먹는 시즈오카식 오뎅. 검은 간장 육수와 된장 분말 소스 조합이 중독성 있어.</div>
+        <div class="food-bottom"><div class="food-tags"><span class="food-tag" style="background:var(--orange2);color:var(--orange);">등반 후 저녁</span><span class="food-tag" style="background:var(--bg);color:var(--muted);">¥500~1000</span></div><a class="map-link" href="https://www.google.com/maps/dir/?api=1&destination=青葉横丁+静岡&travelmode=driving" target="_blank">🗺️ 길찾기</a></div>
+      </div>
+    </div>
+
+    <!-- 하마마쓰 우나기 -->
+    <div class="food-sec">
+      <div class="food-cat-hd" style="background:linear-gradient(135deg,#e6f2ff,#cce4ff);">
+        <div class="food-cat-ic" style="background:var(--blue);color:#fff;">🐍</div>
+        <div><div class="ftitle">하마마쓰 우나기 (장어)</div><div class="fsub">浜松うなぎ · 일본 최대 장어 산지</div></div>
+      </div>
+      <div class="food-card">
+        <div class="food-top"><div class="food-em">🍱</div><div><div class="food-name">우나기 후지타</div><div class="food-jp">うなぎ 藤田 浜松</div></div></div>
+        <div class="food-desc">숯불 직화로 겉은 바삭 속은 촉촉. 우나주(장어 덮밥) 꼭 먹어봐야 함. 하마마쓰호 수계의 우나기는 특히 살이 두툼하고 지방이 풍부해.</div>
+        <div class="food-bottom"><div class="food-tags"><span class="food-tag" style="background:var(--blue2);color:var(--blue);">시즈오카 서쪽</span><span class="food-tag" style="background:var(--bg);color:var(--muted);">¥2500~4000</span></div><a class="map-link" href="https://www.google.com/maps/dir/?api=1&destination=うなぎ+藤田+浜松&travelmode=driving" target="_blank">🗺️ 길찾기</a></div>
+      </div>
+    </div>
+
+    <!-- 녹차 카페 -->
+    <div class="food-sec">
+      <div class="food-cat-hd" style="background:linear-gradient(135deg,#dcfff1,#c0f5e0);">
+        <div class="food-cat-ic" style="background:var(--green);color:#fff;">🍵</div>
+        <div><div class="ftitle">시즈오카 녹차 카페</div><div class="fsub">静岡茶 · 일본 최대 차 산지</div></div>
+      </div>
+      <div class="food-card">
+        <div class="food-top"><div class="food-em">🍵</div><div><div class="food-name">마루시마 차밭 카페</div><div class="food-jp">丸嶋茶園 カフェ</div></div></div>
+        <div class="food-desc">마키노하라 차밭 안 카페. 녹차 소프트크림 유명. 끝없이 펼쳐진 차밭 뷰가 포토스팟. 말차 라떼와 녹차 파르페도 강추.</div>
+        <div class="food-bottom"><div class="food-tags"><span class="food-tag" style="background:var(--green2);color:var(--green);">포토스팟</span><span class="food-tag" style="background:var(--bg);color:var(--muted);">¥400~800</span></div><a class="map-link" href="https://www.google.com/maps/dir/?api=1&destination=牧之原+お茶カフェ+静岡&travelmode=driving" target="_blank">🗺️ 길찾기</a></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ SOS TAB ═══ -->
+<div class="tab-panel" id="sosTab">
+  <div class="tab-inner">
+    <div class="sos-loc">
+      <div class="sos-loc-title">📍 현재 위치 정보</div>
+      <div class="sos-coord-box"><div class="sos-coord-label">위도 / 경도</div><div class="sos-coord-val" id="sosCoords">GPS 신호 없음</div></div>
+      <div class="sos-loc-meta"><span>🏔️ 고도: <strong id="sosAlt">-</strong></span><span id="sosTime" style="font-size:10px;">마지막 업데이트: -</span></div>
+      <button class="sos-copy" onclick="copyCoords()">📋 좌표 복사하기</button>
+    </div>
+    <div class="sos-call-sec">
+      <div class="sos-sec-title">🚨 긴급 신고 (일본)</div>
+      <div class="sos-call-grid">
+        <a class="sos-call-btn amb" href="tel:119"><div class="sos-call-em">🚑</div><div class="sos-call-num">119</div><div class="sos-call-lbl">구급·소방</div></a>
+        <a class="sos-call-btn pol" href="tel:110"><div class="sos-call-em">🚔</div><div class="sos-call-num">110</div><div class="sos-call-lbl">경찰</div></a>
+      </div>
+    </div>
+    <div class="sos-sms-sec">
+      <div class="sos-sec-title">📱 SOS 문자 보내기</div>
+      <input class="sos-contact" type="tel" id="sosContact" placeholder="연락처 입력 (예: 010-1234-5678)">
+      <button class="sos-sms-btn" onclick="sendSOS()">🆘 SOS 문자 보내기</button>
+      <div class="sos-hint">GPS 좌표 + 구글맵 링크 자동 포함 · 문자 앱에서 직접 전송해요</div>
+    </div>
+    <div class="sos-rescue-sec">
+      <div class="sos-sec-title">🗾 산악 구조 연락처</div>
+      <div class="sos-rescue-item"><div><div class="sos-rescue-name">후지산 구조대 (야마나시)</div><div class="sos-rescue-sub">富士山救助隊</div></div><a class="sos-rescue-call" href="tel:0555723000">📞 0555-72-3000</a></div>
+      <div class="sos-rescue-item"><div><div class="sos-rescue-name">야마나시현 경찰</div><div class="sos-rescue-sub">山梨県警察本部</div></div><a class="sos-rescue-call" href="tel:0552210110">📞 055-221-0110</a></div>
+      <div class="sos-rescue-item"><div><div class="sos-rescue-name">시즈오카현 경찰</div><div class="sos-rescue-sub">静岡県警察本部</div></div><a class="sos-rescue-call" href="tel:0542224141">📞 054-222-4141</a></div>
+    </div>
+    <div class="sos-phrase-sec">
+      <div class="sos-sec-title">🗣️ 구조 요청 일본어</div>
+      <div class="phrase-item"><div class="phrase-kr">도와주세요!</div><div class="phrase-jp">助けてください！</div><div class="phrase-read">타스케테 쿠다사이!</div></div>
+      <div class="phrase-item"><div class="phrase-kr">다쳤어요</div><div class="phrase-jp">けがをしました</div><div class="phrase-read">케가오 시마시타</div></div>
+      <div class="phrase-item"><div class="phrase-kr">고산병이에요</div><div class="phrase-jp">高山病です</div><div class="phrase-read">코우잔뵤우 데스</div></div>
+      <div class="phrase-item"><div class="phrase-kr">길을 잃었어요</div><div class="phrase-jp">道に迷いました</div><div class="phrase-read">미치니 마요이마시타</div></div>
+      <div class="phrase-item"><div class="phrase-kr">움직일 수 없어요</div><div class="phrase-jp">動けません</div><div class="phrase-read">우고케마센</div></div>
+      <div class="phrase-item"><div class="phrase-kr">구급차를 불러주세요</div><div class="phrase-jp">救急車を呼んでください</div><div class="phrase-read">큐우큐우샤오 욘데 쿠다사이</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Certificate overlay -->
+<div class="cert-overlay" id="certOverlay">
+  <div class="cert-wrap">
+    <canvas id="certCanvas"></canvas>
+    <div class="cert-actions">
+      <button class="cert-dl" onclick="downloadCert()">💾 인증서 저장 (PNG)</button>
+      <button class="cert-close" onclick="closeCert()">닫기</button>
+    </div>
+    <div class="cert-hint">📸 긴 스크린샷으로도 저장할 수 있어요!</div>
+  </div>
+</div>
+
+<!-- Bottom nav -->
+<nav class="bottom-nav">
+  <button class="bn on" onclick="switchTab('climb')" id="bn-climb"><span class="bn-ic">⛰️</span><span class="bn-lbl">등반</span></button>
+  <button class="bn" onclick="switchTab('weather')" id="bn-weather"><span class="bn-ic">☀️</span><span class="bn-lbl">날씨</span></button>
+  <button class="bn" onclick="switchTab('food')" id="bn-food"><span class="bn-ic">🍜</span><span class="bn-lbl">맛집</span></button>
+  <button class="bn sos" onclick="switchTab('sos')" id="bn-sos"><span class="bn-ic">🆘</span><span class="bn-lbl">SOS</span></button>
+</nav>
+
+<script>
+/* ── DATA ── */
+var STATIONS=[
+  {name:'5합목',alt:2305,em:'🏁',desc:'출발! 여기서부터 시작이야 🐰🐥🐯',badge:'출발점',lat:35.3942,lng:138.7277},
+  {name:'6합목',alt:2390,em:'⛺',desc:'첫 번째 산장 도착! 잠깐 숨 고르고 가자',badge:'6합목 달성',lat:35.3878,lng:138.7275},
+  {name:'7합목',alt:2700,em:'☁️',desc:'구름 위로 올라왔어! 경치 미쳤다 ✨',badge:'구름 위',lat:35.3808,lng:138.7272},
+  {name:'신7합목',alt:3010,em:'🌟',desc:'3000m 돌파!! 이제 고산 지대야 🎉',badge:'3000m 클럽',lat:35.3749,lng:138.7269},
+  {name:'8합목',alt:3360,em:'🌙',desc:'저 멀리 정상이 보여! 거의 다 왔어!',badge:'8합목 달성',lat:35.3705,lng:138.7265},
+  {name:'본8합목',alt:3400,em:'⭐',desc:'마지막 산장! 여기서 에너지 충전!',badge:'최후 보루',lat:35.3682,lng:138.7263},
+  {name:'9합목',alt:3600,em:'🔥',desc:'정상까지 200m! 전력 질주!!',badge:'9합목 달성',lat:35.3655,lng:138.7260},
+  {name:'정상',alt:3776,em:'🏆',desc:'후지산 정복 완료!! 선령 지예 윤미 최고!!',badge:'후지산 정복',lat:35.3606,lng:138.7274}
+];
+
+/* ── STATE ── */
+var S={
+  alt:2305,stIdx:0,cleared:[],
+  tracking:false,watchId:null,t0:null,tiv:null,
+  lat:null,lng:null,gpsAt:null,wakeLock:null,
+  checkedIn:[false,false,false]
+};
+
+/* ── SVG TRAIL ── */
+var NS='http://www.w3.org/2000/svg';
+function svgEl(tag,attrs,txt){
+  var el=document.createElementNS(NS,tag);
+  if(attrs)Object.keys(attrs).forEach(function(k){el.setAttribute(k,attrs[k]);});
+  if(txt!==undefined)el.textContent=txt;
+  return el;
+}
+
+function drawTrail(){
+  var svg=document.getElementById('trailSvg');
+  if(!svg)return;
+  var rect=svg.getBoundingClientRect();
+  var W=rect.width||svg.parentElement.clientWidth||320;
+  var H=rect.height||svg.parentElement.clientHeight||300;
+  if(W<10||H<10){setTimeout(drawTrail,80);return;}
+
+  while(svg.firstChild)svg.removeChild(svg.firstChild);
+  svg.setAttribute('width',W);
+  svg.setAttribute('height',H);
+
+  var defs=svgEl('defs',{});
+
+  // Pure vertical gradient (x2=0 fixes the diagonal banding)
+  var bgGrad=svgEl('linearGradient',{id:'bgG',x1:'0',y1:'0',x2:'0',y2:'1'});
+  bgGrad.appendChild(svgEl('stop',{'offset':'0%','stop-color':'#0a1628'}));
+  bgGrad.appendChild(svgEl('stop',{'offset':'100%','stop-color':'#1a3555'}));
+  defs.appendChild(bgGrad);
+
+  var trailGrad=svgEl('linearGradient',{id:'trailG',x1:'0',y1:'1',x2:'0',y2:'0'});
+  trailGrad.appendChild(svgEl('stop',{'offset':'0%','stop-color':'#ffd93d'}));
+  trailGrad.appendChild(svgEl('stop',{'offset':'100%','stop-color':'#ff6b35'}));
+  defs.appendChild(trailGrad);
+
+  var glowFil=svgEl('filter',{id:'glow',x:'-60%',y:'-60%',width:'220%',height:'220%'});
+  var fgb=svgEl('feGaussianBlur',{'in':'SourceGraphic',stdDeviation:'4',result:'blur'});
+  var fMerge=svgEl('feMerge',{});
+  fMerge.appendChild(svgEl('feMergeNode',{'in':'blur'}));
+  fMerge.appendChild(svgEl('feMergeNode',{'in':'SourceGraphic'}));
+  glowFil.appendChild(fgb);glowFil.appendChild(fMerge);
+  defs.appendChild(glowFil);
+
+  var charGlow=svgEl('filter',{id:'charGlow',x:'-80%',y:'-80%',width:'260%',height:'260%'});
+  var cgb=svgEl('feGaussianBlur',{'in':'SourceGraphic',stdDeviation:'5',result:'b'});
+  var cMerge=svgEl('feMerge',{});
+  cMerge.appendChild(svgEl('feMergeNode',{'in':'b'}));
+  cMerge.appendChild(svgEl('feMergeNode',{'in':'SourceGraphic'}));
+  charGlow.appendChild(cgb);charGlow.appendChild(cMerge);
+  defs.appendChild(charGlow);
+
+  svg.appendChild(defs);
+  svg.appendChild(svgEl('rect',{width:W,height:H,fill:'url(#bgG)'}));
+
+  // Trail centered at W/2 — labels balanced left (alt) and right (name)
+  var trailX=Math.round(W*0.5);
+  var topY=altToY(3776,H);
+  var botY=altToY(2305,H);
+
+  // Route label above 정상
+  svg.appendChild(svgEl('text',{x:trailX,y:topY-16,'text-anchor':'middle',
+    fill:'rgba(255,255,255,0.28)','font-size':'9','font-weight':'700',
+    'font-family':'sans-serif','letter-spacing':'1'},'요시다 루트 吉田ルート'));
+
+  // Full trail line (dim base)
+  svg.appendChild(svgEl('line',{x1:trailX,y1:botY,x2:trailX,y2:topY,
+    stroke:'rgba(255,255,255,0.1)','stroke-width':'4','stroke-linecap':'round'}));
+
+  // Completed portion (orange dashed)
+  var charY=altToY(S.alt,H);
+  if(S.tracking||S.cleared.length>0){
+    svg.appendChild(svgEl('line',{x1:trailX,y1:botY,x2:trailX,y2:charY,
+      stroke:'url(#trailG)','stroke-width':'5','stroke-dasharray':'11,7',
+      'stroke-linecap':'round',filter:'url(#glow)'}));
+  }
+
+  // Pre-compute which side each label goes (avoid overlap for close stations)
+  var labelSides=STATIONS.map(function(){return'right';});
+  for(var ci=1;ci<STATIONS.length;ci++){
+    var dy=Math.abs(altToY(STATIONS[ci].alt,H)-altToY(STATIONS[ci-1].alt,H));
+    if(dy<22){labelSides[ci]=labelSides[ci-1]==='right'?'left':'right';}
+  }
+
+  // Station dots and labels
+  STATIONS.forEach(function(st,i){
+    var sy=altToY(st.alt,H);
+    var done=S.cleared.indexOf(i)>-1;
+    var cur=S.stIdx===i&&(S.tracking||done);
+    var side=labelSides[i];
+
+    if(cur){
+      svg.appendChild(svgEl('circle',{cx:trailX,cy:sy,r:'15',fill:'rgba(255,107,53,0.18)'}));
+      svg.appendChild(svgEl('circle',{cx:trailX,cy:sy,r:'10',fill:'rgba(255,107,53,0.25)'}));
+    }
+
+    var dotR=cur?7:done?6:4.5;
+    var dotFill=cur?'#ff6b35':done?'#00c27a':'rgba(255,255,255,0.2)';
+    var dotStroke=cur?'#fff':done?'rgba(255,255,255,0.7)':'rgba(255,255,255,0.3)';
+    svg.appendChild(svgEl('circle',{cx:trailX,cy:sy,r:dotR,
+      fill:dotFill,stroke:dotStroke,'stroke-width':cur?2.5:1.5}));
+
+    // Station name label
+    var labelFill=(done||cur)?'#fff':'rgba(255,255,255,0.4)';
+    var labelWeight=(done||cur)?'700':'500';
+    var labelText=(done||cur?st.em+' ':'')+st.name;
+    var lx=side==='right'?trailX+13:trailX-13;
+    var anchor=side==='right'?'start':'end';
+    svg.appendChild(svgEl('text',{x:lx,y:sy-3,fill:labelFill,
+      'font-size':cur?'12':'11','font-weight':labelWeight,
+      'text-anchor':anchor,
+      'font-family':"'Apple SD Gothic Neo','Noto Sans KR',sans-serif"},labelText));
+
+    // Altitude number (small, opposite side from name label or below)
+    var altSide=side==='right'?'left':'right';
+    var ax=altSide==='left'?trailX-11:trailX+11;
+    var altAnchor=altSide==='left'?'end':'start';
+    if(i===0||i===4||i===6||i===7){
+      svg.appendChild(svgEl('text',{x:ax,y:sy+5,fill:'rgba(255,255,255,0.25)',
+        'font-size':'9','text-anchor':altAnchor,'font-family':'sans-serif'},st.alt+'m'));
+    }
+  });
+
+  // Character marker
+  var checkedEmojis=['🐰','🐥','🐯'].filter(function(e,i){return S.checkedIn[i];});
+  var dispChar=checkedEmojis.length>0?checkedEmojis[0]:'🗻';
+
+  svg.appendChild(svgEl('circle',{cx:trailX,cy:charY,r:'22',fill:'rgba(255,107,53,0.08)'}));
+  svg.appendChild(svgEl('circle',{cx:trailX,cy:charY,r:'15',fill:'rgba(255,107,53,0.18)'}));
+  svg.appendChild(svgEl('circle',{cx:trailX,cy:charY,r:'13',
+    fill:S.tracking?'#ff6b35':'#2a4a7a',
+    stroke:'#fff','stroke-width':'2.5',filter:'url(#charGlow)'}));
+  svg.appendChild(svgEl('text',{x:trailX,y:charY+5,'text-anchor':'middle',
+    'dominant-baseline':'middle','font-size':'13','font-family':'sans-serif'},dispChar));
+
+  if(checkedEmojis.length>1){
+    svg.appendChild(svgEl('text',{x:trailX+18,y:charY+2,'text-anchor':'start',
+      'font-size':'11','font-family':'sans-serif',fill:'rgba(255,255,255,0.8)'},
+      checkedEmojis.slice(1).join('')));
+  }
+}
+
+function altToY(alt,H){
+  if(!H){var svg=document.getElementById('trailSvg');H=svg?svg.getBoundingClientRect().height||300:300;}
+  var padTop=Math.max(H*0.09,22);
+  var padBot=Math.max(H*0.1,26);
+  var trailH=H-padTop-padBot;
+  var p=Math.max(0,Math.min(1,(alt-2305)/(3776-2305)));
+  return Math.round((H-padBot)-p*trailH);
+}
+
+/* ── HORIZONTAL STATION STRIP ── */
+function renderHStrip(){
+  var html='';
+  STATIONS.forEach(function(s,i){
+    var done=S.cleared.indexOf(i)>-1;
+    var cur=S.stIdx===i&&S.tracking;
+    var sum=i===STATIONS.length-1&&done;
+    var dc=sum?'summit':(cur?'current':(done?'reached':'empty'));
+    var nc=cur||done?'active':'';
+    var dotContent=done||cur?s.em:'';
+    html+='<div class="h-st"><div class="h-st-dot '+dc+'">'+dotContent+'</div><div class="h-st-name '+nc+'">'+s.name+'</div></div>';
+    if(i<STATIONS.length-1)html+='<div class="h-connector'+(done?' done':'')+'"></div>';
+  });
+  var summitDone=S.cleared.indexOf(STATIONS.length-1)>-1;
+  html+='<div class="h-connector'+(summitDone?' done':'')+'"></div>';
+  html+='<div class="h-st" onclick="'+(summitDone?'showCert()':'showToast(\'🏆 정상을 완등해야 인증서가 열려요!\')')+'" style="cursor:pointer;">';
+  html+='<div class="h-st-dot'+(summitDone?' summit':' empty')+'" style="'+(summitDone?'background:linear-gradient(135deg,#c9a227,#f0c040);border-color:#c9a227;':'')+'">'+(summitDone?'🎖️':'')+'</div>';
+  html+='<div class="h-st-name'+(summitDone?' active':'')+'">인증서</div></div>';
+  document.getElementById('hStrip').innerHTML=html;
+  if(S.tracking){
+    var strip=document.getElementById('hStrip');
+    var itemW=48+18;
+    strip.scrollLeft=Math.max(0,S.stIdx*itemW-strip.clientWidth/2+24);
+  }
+}
+
+/* ── ALTITUDE UPDATE ── */
+function setAlt(alt){
+  alt=Math.max(2305,Math.min(3776,Math.round(alt)));
+  S.alt=alt;
+  var pct=Math.round((alt-2305)/(3776-2305)*100);
+
+  document.getElementById('sAlt').textContent=alt.toLocaleString();
+  document.getElementById('mapProgFill').style.width=pct+'%';
+  document.getElementById('sosAlt').textContent=alt.toLocaleString()+'m';
+
+  var si=0;
+  for(var i=STATIONS.length-1;i>=0;i--){if(alt>=STATIONS[i].alt){si=i;break;}}
+  if(S.cleared.indexOf(si)===-1){S.cleared.push(si);if(si>0||S.tracking)showAchieve(si);}
+  S.stIdx=si;
+
+  document.getElementById('msoName').textContent=STATIONS[si].name+(si===STATIONS.length-1?' · 🎉 정상!':' · 등반 중');
+  document.getElementById('msoAlt').textContent=alt.toLocaleString()+'m · '+pct+'%';
+
+  var stTxt=STATIONS[si].name+' ('+alt+'m)';
+  for(var j=0;j<3;j++){
+    var el=document.getElementById('ciSt'+j);
+    if(el&&S.checkedIn[j]&&S.tracking)el.textContent='🐾 '+stTxt;
+  }
+
+  drawTrail();
+  renderHStrip();
+}
+
+/* ── CHARACTER CHECK-IN ── */
+function toggleCheckin(i){
+  S.checkedIn[i]=!S.checkedIn[i];
+  var card=document.getElementById('ciCard'+i);
+  var st=document.getElementById('ciSt'+i);
+  if(S.checkedIn[i]){
+    card.classList.add('checked');
+    st.textContent='✅ 등산 시작!';
+    showToast(['선령','지예','윤미'][i]+' 체크인 완료! 🎒');
+  } else {
+    card.classList.remove('checked');
+    st.textContent='탭해서 체크인';
+  }
+  var anyChecked=S.checkedIn.indexOf(true)>-1;
+  var fab=document.getElementById('gpsFab');
+  if(!S.tracking&&anyChecked)fab.classList.add('waiting');
+  else if(!S.tracking)fab.classList.remove('waiting');
+  drawTrail();
+}
+
+/* ── ACHIEVEMENT ── */
+function showAchieve(i){
+  var s=STATIONS[i];
+  document.getElementById('achEm').textContent=s.em;
+  document.getElementById('achBadge').textContent=s.badge;
+  document.getElementById('achTitle').textContent=s.name+' 도착!';
+  document.getElementById('achDesc').textContent=s.desc;
+  document.getElementById('achieveOverlay').classList.add('show');
+}
+function closeAchieve(){document.getElementById('achieveOverlay').classList.remove('show');}
+
+/* ── WAKE LOCK ── */
+async function acquireWakeLock(){
+  if(!('wakeLock' in navigator))return;
+  try{
+    S.wakeLock=await navigator.wakeLock.request('screen');
+    document.getElementById('wakelockBanner').classList.add('show');
+    S.wakeLock.addEventListener('release',function(){document.getElementById('wakelockBanner').classList.remove('show');});
+  }catch(e){}
+}
+function releaseWakeLock(){
+  if(S.wakeLock){S.wakeLock.release();S.wakeLock=null;}
+  document.getElementById('wakelockBanner').classList.remove('show');
+}
+document.addEventListener('visibilitychange',async function(){
+  if(S.wakeLock!==null&&S.tracking&&document.visibilityState==='visible')await acquireWakeLock();
+});
+
+/* ── GPS ── */
+function toggleGPS(){if(!S.tracking)startGPS();else stopGPS();}
+function startGPS(){
+  S.tracking=true; S.t0=Date.now(); startTimer(); acquireWakeLock();
+  var fab=document.getElementById('gpsFab');
+  fab.textContent='🟢'; fab.classList.add('on'); fab.classList.remove('waiting');
+  document.getElementById('mapGpsDot').classList.add('on');
+  if(!navigator.geolocation){showToast('⚠️ GPS 미지원. 수동 입력 이용해요.');drawTrail();return;}
+  S.watchId=navigator.geolocation.watchPosition(
+    function(pos){
+      S.lat=pos.coords.latitude; S.lng=pos.coords.longitude; S.gpsAt=new Date();
+      savePosCache(); updateSOSCoords();
+      var alt=pos.coords.altitude;
+      if(alt!==null&&alt>0)setAlt(alt);
+    },
+    function(e){showToast('⚠️ GPS: '+e.message);},
+    {enableHighAccuracy:true,maximumAge:10000,timeout:15000}
+  );
+  if(S.cleared.indexOf(0)===-1){S.cleared.push(0);showAchieve(0);}
+  drawTrail();
+  renderHStrip();
+}
+function stopGPS(){
+  S.tracking=false;
+  if(S.watchId)navigator.geolocation.clearWatch(S.watchId);
+  clearInterval(S.tiv); releaseWakeLock();
+  var fab=document.getElementById('gpsFab'); fab.textContent='📍'; fab.classList.remove('on');
+  document.getElementById('mapGpsDot').classList.remove('on');
+  document.getElementById('sTimeLbl').textContent='등반 시간';
+  for(var j=0;j<3;j++){if(S.checkedIn[j]){var el=document.getElementById('ciSt'+j);if(el)el.textContent='✅ 등산 시작!';}}
+  drawTrail();
+}
+
+/* ── TIMER ── */
+function startTimer(){
+  S.tiv=setInterval(function(){
+    var e=Date.now()-S.t0;
+    var h=Math.floor(e/3600000),m=Math.floor((e%3600000)/60000).toString().padStart(2,'0'),s=Math.floor((e%60000)/1000).toString().padStart(2,'0');
+    document.getElementById('sTime').textContent=h>0?(h+':'+m+':'+s):(m+':'+s);
+    if(S.alt>=3776)document.getElementById('sTimeLbl').textContent='🎉 정상 완등!';
+  },1000);
+}
+
+/* ── MANUAL INPUT ── */
+function openManual(){document.getElementById('manualModal').classList.add('show');}
+function closeManual(){document.getElementById('manualModal').classList.remove('show');}
+function applyManual(){
+  var v=parseInt(document.getElementById('manualAlt').value);
+  if(isNaN(v)||v<0||v>4000){showToast('올바른 고도를 입력해주세요');return;}
+  if(!S.tracking){S.tracking=true;S.t0=Date.now();startTimer();var fab=document.getElementById('gpsFab');fab.textContent='🟢';fab.classList.add('on');fab.classList.remove('waiting');}
+  setAlt(v); document.getElementById('manualAlt').value=''; closeManual();
+  showToast('✅ '+v+'m 이동!');
+}
+
+/* ── TAB SWITCH ── */
+function switchTab(t){
+  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('on');});
+  document.getElementById(t+'Tab').classList.add('on');
+  document.querySelectorAll('.bn').forEach(function(b){b.classList.remove('on');});
+  document.getElementById('bn-'+t).classList.add('on');
+  if(t==='climb')setTimeout(drawTrail,80);
+  if(t==='sos')updateSOSCoords();
+}
+
+/* ── OFFLINE ── */
+var offline=!navigator.onLine;
+function checkOffline(){
+  offline=!navigator.onLine;
+  document.getElementById('offlineBadge').classList.toggle('show',offline);
+  document.getElementById('offlineNote').classList.toggle('show',offline);
+}
+window.addEventListener('online',function(){checkOffline();fetchWeather();});
+window.addEventListener('offline',checkOffline);
+
+/* ── SOS ── */
+function updateSOSCoords(){
+  if(S.lat!==null){
+    document.getElementById('sosCoords').textContent=S.lat.toFixed(5)+', '+S.lng.toFixed(5);
+    document.getElementById('sosAlt').textContent=S.alt.toLocaleString()+'m';
+    if(S.gpsAt){var t=S.gpsAt;document.getElementById('sosTime').textContent=t.getHours().toString().padStart(2,'0')+':'+t.getMinutes().toString().padStart(2,'0')+':'+t.getSeconds().toString().padStart(2,'0');}
+  } else {
+    var c=localStorage.getItem('fuji_pos');
+    if(c){try{var p=JSON.parse(c);document.getElementById('sosCoords').textContent=p.lat.toFixed(5)+', '+p.lng.toFixed(5)+' (캐시)';document.getElementById('sosAlt').textContent=(p.alt||'-')+'m';}catch(e){}}
+  }
+}
+function savePosCache(){if(S.lat!==null)localStorage.setItem('fuji_pos',JSON.stringify({lat:S.lat,lng:S.lng,alt:S.alt,t:Date.now()}));}
+function copyCoords(){
+  var txt;
+  if(S.lat!==null)txt=S.lat.toFixed(5)+', '+S.lng.toFixed(5)+' ('+S.alt+'m) https://maps.google.com/?q='+S.lat+','+S.lng;
+  else{var c=localStorage.getItem('fuji_pos');if(!c){showToast('⚠️ GPS 신호를 먼저 받아주세요');return;}try{var p=JSON.parse(c);txt=p.lat.toFixed(5)+', '+p.lng.toFixed(5)+' https://maps.google.com/?q='+p.lat+','+p.lng;}catch(e){return;}}
+  if(navigator.clipboard)navigator.clipboard.writeText(txt).then(function(){showToast('📋 좌표 복사 완료!');});
+  else{var ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');showToast('📋 복사 완료!');}catch(e){}document.body.removeChild(ta);}
+}
+function sendSOS(){
+  var contact=document.getElementById('sosContact').value.trim();
+  var coordStr='위치 미확인',mapUrl='';
+  if(S.lat!==null){coordStr=S.lat.toFixed(5)+', '+S.lng.toFixed(5);mapUrl='https://maps.google.com/?q='+S.lat+','+S.lng;}
+  else{var c=localStorage.getItem('fuji_pos');if(c){try{var p=JSON.parse(c);coordStr=p.lat.toFixed(5)+', '+p.lng.toFixed(5)+' (이전 위치)';mapUrl='https://maps.google.com/?q='+p.lat+','+p.lng;}catch(e){}}}
+  var msg='🆘 SOS! 후지산 원정대\n위치: '+coordStr+'\n고도: '+S.alt.toLocaleString()+'m\n'+(mapUrl?'지도: '+mapUrl+'\n':'')+'후지산 요시다 루트에서 도움이 필요해요!\n구급: 119 / 경찰: 110';
+  window.location.href='sms:'+contact+'?body='+encodeURIComponent(msg);
+}
+
+/* ── TOAST ── */
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2200);}
+
+/* ── WEATHER ── */
+var WI={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',51:'🌦️',53:'🌧️',61:'🌧️',65:'🌧️',71:'❄️',80:'🌦️',82:'⛈️',95:'⛈️'};
+var WD={0:'맑음',1:'대체로 맑음',2:'구름 조금',3:'흐림',45:'안개',51:'이슬비',61:'비',65:'강한 비',71:'눈',80:'소나기',82:'폭우',95:'뇌우'};
+async function fetchWeather(){
+  if(offline){loadCachedWeather();return;}
+  try{
+    var r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=35.3606&longitude=138.7274&hourly=temperature_2m,precipitation_probability,windspeed_10m,weathercode&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,windspeed_10m_max,weathercode&timezone=Asia%2FTokyo&forecast_days=7');
+    var d=await r.json();
+    var di=d.daily.time.indexOf('2026-07-11'); if(di<0)di=0;
+    var code=d.daily.weathercode[di],maxT=Math.round(d.daily.temperature_2m_max[di]),minT=Math.round(d.daily.temperature_2m_min[di]),wind=Math.round(d.daily.windspeed_10m_max[di]),rain=d.daily.precipitation_probability_max[di];
+    var ds=di*24,hl=[];
+    [4,5,6,7,8,9,10,11,12,13,14,15,16,17,18].forEach(function(h){var i=ds+h;if(i<d.hourly.temperature_2m.length)hl.push({h:h,code:d.hourly.weathercode[i],temp:Math.round(d.hourly.temperature_2m[i]),rain:d.hourly.precipitation_probability[i]});});
+    var wc={code:code,maxT:maxT,minT:minT,wind:wind,rain:rain,feels:Math.round(maxT-wind*.1),hl:hl};
+    localStorage.setItem('fuji_wx',JSON.stringify(wc));
+    applyWeather(wc);
+  }catch(e){loadCachedWeather();}
+}
+function loadCachedWeather(){var c=localStorage.getItem('fuji_wx');if(c){try{applyWeather(JSON.parse(c));}catch(e){}}}
+function applyWeather(w){
+  document.getElementById('wEm').textContent=WI[w.code]||'🌤️';
+  document.getElementById('wTemp').textContent=w.minT+'°C ~ '+w.maxT+'°C';
+  document.getElementById('wDesc').textContent=(WD[w.code]||'맑음')+' · 정상 기준';
+  document.getElementById('wWind').textContent=w.wind;
+  document.getElementById('wRain').textContent=w.rain+'%';
+  document.getElementById('wFeels').textContent=w.feels+'°C';
+  document.getElementById('hdrWeather').textContent=(WI[w.code]||'🌤️')+' '+w.maxT+'°C';
+  if(w.hl&&w.hl.length){
+    document.getElementById('hourlyScroll').innerHTML=w.hl.map(function(i){return'<div class="h-item"><div class="h-time">'+i.h+'시</div><div class="h-em">'+(WI[i.code]||'🌤️')+'</div><div class="h-temp">'+i.temp+'°C</div><div class="h-rain">'+i.rain+'%</div></div>';}).join('');
+  }
+}
+
+/* ── CERTIFICATE ── */
+function showCert(){
+  if(S.cleared.indexOf(STATIONS.length-1)===-1){showToast('🏆 정상을 완등해야 인증서가 열려요!');return;}
+  document.getElementById('certOverlay').classList.add('show');
+  setTimeout(drawCert,80);
+}
+function closeCert(){document.getElementById('certOverlay').classList.remove('show');}
+function downloadCert(){
+  var canvas=document.getElementById('certCanvas');
+  var link=document.createElement('a');
+  link.download='후지산_등정_인증서_2026.png';
+  link.href=canvas.toDataURL('image/png');
+  link.click();
+}
+function drawCert(){
+  var canvas=document.getElementById('certCanvas');
+  var W=600,H=820;
+  canvas.width=W; canvas.height=H;
+  var ctx=canvas.getContext('2d');
+
+  var bg=ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#fffef6');
+  bg.addColorStop(1,'#fff8dc');
+  ctx.fillStyle=bg;
+  ctx.fillRect(0,0,W,H);
+
+  function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+
+  ctx.strokeStyle='#c9a227'; ctx.lineWidth=7; rr(14,14,W-28,H-28,14); ctx.stroke();
+  ctx.strokeStyle='#e8c84a'; ctx.lineWidth=2; rr(24,24,W-48,H-48,10); ctx.stroke();
+
+  ctx.fillStyle='#c9a227'; ctx.font='16px serif'; ctx.textAlign='center';
+  [[46,46],[W-46,46],[46,H-46],[W-46,H-46]].forEach(function(c){ctx.fillText('✦',c[0],c[1]+6);});
+
+  ctx.font='70px serif'; ctx.textAlign='center';
+  ctx.fillText('🗻',W/2,118);
+
+  ctx.fillStyle='#1a2f4e';
+  ctx.font='bold 34px "Apple SD Gothic Neo","Noto Sans KR",sans-serif';
+  ctx.fillText('후지산 등정 인증서',W/2,172);
+
+  ctx.fillStyle='#8a6e00';
+  ctx.font='15px Georgia,serif';
+  ctx.fillText('Certificate of Climbing Mt. Fuji',W/2,197);
+
+  ctx.strokeStyle='#c9a227'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(90,216); ctx.lineTo(W-90,216); ctx.stroke();
+  ctx.fillStyle='#c9a227'; ctx.font='10px serif';
+  ctx.fillText('◆',W/2,215);
+
+  ctx.fillStyle='#bbb'; ctx.font='11px monospace'; ctx.textAlign='right';
+  ctx.fillText('No. 20260711-FJY001',W-50,240);
+  ctx.textAlign='center';
+
+  ctx.fillStyle='#4a4a4a'; ctx.font='15px "Apple SD Gothic Neo","Noto Sans KR",sans-serif';
+  ctx.fillText('위 등반자들은 아래와 같이',W/2,275);
+  ctx.fillText('일본 후지산 요시다 루트를 성공적으로 완등하였기에',W/2,300);
+  ctx.fillText('이에 등정을 인증합니다.',W/2,325);
+
+  var nameGrad=ctx.createLinearGradient(80,360,W-80,360);
+  nameGrad.addColorStop(0,'rgba(26,47,78,.04)');
+  nameGrad.addColorStop(.5,'rgba(26,47,78,.09)');
+  nameGrad.addColorStop(1,'rgba(26,47,78,.04)');
+  ctx.fillStyle=nameGrad;
+  rr(80,355,W-160,66,12); ctx.fill();
+  ctx.strokeStyle='rgba(201,162,39,.4)'; ctx.lineWidth=1.5; rr(80,355,W-160,66,12); ctx.stroke();
+
+  ctx.fillStyle='#1a2f4e';
+  ctx.font='bold 30px "Apple SD Gothic Neo","Noto Sans KR",sans-serif';
+  ctx.fillText('🐰 선령   🐥 지예   🐯 윤미',W/2,397);
+
+  ctx.strokeStyle='#e8d88a'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(90,434); ctx.lineTo(W-90,434); ctx.stroke();
+
+  ctx.fillStyle='#555'; ctx.font='15px "Apple SD Gothic Neo","Noto Sans KR",sans-serif';
+  var info=[['📅 등반 일자','2026년 7월 11일'],['🏔️ 등반 경로','요시다 루트 (吉田ルート)'],['⛰️ 정상 고도','해발 3,776m'],['🗾 위치','일본 시즈오카현 · 야마나시현']];
+  info.forEach(function(row,i){
+    ctx.textAlign='right'; ctx.fillStyle='#888'; ctx.font='13px "Apple SD Gothic Neo",sans-serif';
+    ctx.fillText(row[0],W/2-10,462+i*26);
+    ctx.textAlign='left'; ctx.fillStyle='#333'; ctx.font='bold 13px "Apple SD Gothic Neo",sans-serif';
+    ctx.fillText(row[1],W/2+10,462+i*26);
+  });
+  ctx.textAlign='center';
+
+  ctx.strokeStyle='#e8d88a'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(90,572); ctx.lineTo(W-90,572); ctx.stroke();
+
+  ctx.beginPath(); ctx.arc(W/2,648,68,0,Math.PI*2);
+  ctx.strokeStyle='rgba(180,30,30,.65)'; ctx.lineWidth=3.5; ctx.stroke();
+  ctx.beginPath(); ctx.arc(W/2,648,56,0,Math.PI*2);
+  ctx.strokeStyle='rgba(180,30,30,.4)'; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.fillStyle='rgba(180,30,30,.75)';
+  ctx.font='bold 13px "Apple SD Gothic Neo","Noto Sans KR",sans-serif';
+  ctx.fillText('후지산 원정대',W/2,638);
+  ctx.font='11px "Apple SD Gothic Neo",sans-serif';
+  ctx.fillText('2026 . 07 . 11',W/2,656);
+  ctx.font='20px serif';
+  ctx.fillText('🗻',W/2,620);
+
+  ctx.fillStyle='#ccc'; ctx.font='11px sans-serif';
+  ctx.fillText('Mt. Fuji Expedition · Yoshida Route · 후지산 원정대',W/2,764);
+  ctx.fillText('선령🐰 지예🐥 윤미🐯 · July 11, 2026',W/2,782);
+}
+
+/* ── INIT ── */
+window.addEventListener('resize',function(){drawTrail();});
+window.addEventListener('load',function(){
+  checkOffline();
+  renderHStrip();
+  setTimeout(drawTrail,150);
+  fetchWeather();
+  updateSOSCoords();
+});
+</script>
+</body>
+</html>
